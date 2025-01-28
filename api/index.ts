@@ -1,10 +1,17 @@
 require('dotenv').config(); // Load environment variables
 
 const express = require("express");
-const axios = require("axios");
+const cors = require("cors");
+const { getToken, getStats } = require("./provider");
+const calculateRating = require("../helpers/calculateRating");
+const path = require('path');
 
 const app = express();
 const PORT = 3000;
+
+
+app.use(cors());
+
 
 // Get the session ID from the environment variable
 const USER_SESSION_ID = process.env.USER_SESSION_ID;
@@ -15,7 +22,7 @@ if (!USER_SESSION_ID) {
 const USER_COOKIE = `JSESSIONID=${USER_SESSION_ID}`;
 
 // Endpoint to handle GET requests
-app.get("/", async (req, res) => {
+app.get("/json", async (req, res) => {
   const userId = req.query.user_id;
 
   // Validate user_id parameter
@@ -24,77 +31,27 @@ app.get("/", async (req, res) => {
   }
 
   try {
-    // Step 1: Get the access token
-    const tokenResponse = await axios.get(
-      "https://www.gran-turismo.com/au/gt7/info/api/token/",
-      {
-        headers: {
-          Cookie: USER_COOKIE,
-        },
-      }
-    );
+    const accessToken = await getToken(USER_COOKIE);
+    const stats = await getStats(userId, accessToken);
 
-    const accessToken = tokenResponse.data.access_token;
-    if (!accessToken) {
-      return res.status(500).json({ error: "Failed to retrieve access token" });
-    }
+    const { drPointRatio, driverRating, onlineID, nickname } = stats;
+    const calculatedRating = calculateRating(driverRating, drPointRatio);
 
-    // Step 2: Fetch Driver Rating data
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
-
-    const statsResponse = await axios.post(
-      "https://web-api.gt7.game.gran-turismo.com/stats/get",
-      {
-        user_id: userId,
-        year: currentYear,
-        month: currentMonth,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0",
-        },
-      }
-    );
-
-    const data = statsResponse.data.result.user;
-    const drPointRatio = data.dr_point_ratio;
-    const driverRating = data.driver_rating;
-    const onlineID = data.np_online_id;
-    const nickname = data.nick_name;
-    
-
-    // Calculate rating based on driver_rating
-    let calculatedRating;
-    switch (driverRating) {
-      case 6:
-        calculatedRating = 50000 + 49999 * drPointRatio;
-        break;
-      case 5:
-        calculatedRating = 30000 + 19999 * drPointRatio;
-        break;
-      case 4:
-        calculatedRating = 10000 + 19999 * drPointRatio;
-        break;
-      default:
-        return res.status(400).json({ error: "Invalid driver rating value" });
-    }
-
-    // Send response
     return res.json({
       message: `Driver Rating for user ${onlineID} (${nickname}):`,
-      dr: Math.round(calculatedRating),
+      psn: onlineID,
+      driver_name: nickname,
+      dr: Math.round(calculatedRating.rating),
+      rank: calculatedRating.rank,
     });
   } catch (error) {
-    console.error("Error fetching data:", error.message);
-    return res.status(500).json({
-      error: "An error occurred while processing your request",
-      details: error.message,
-    });
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
   }
+});
+
+app.get('/', function (req, res) {
+	res.sendFile(path.join(__dirname, '..', 'components', 'index.html'));
 });
 
 // Start the server

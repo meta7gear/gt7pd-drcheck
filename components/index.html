@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Your DR</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-5">
+        <h1 class="text-center mb-4">Check Your DR</h1>
+          <form id="drForm" class="mb-3">
+            <div class="mb-3">
+              <input type="text" class="form-control form-control-lg" id="user_id" placeholder="Enter your User ID" required>
+            </div>
+            <div class="d-flex justify-content-center">
+              <button type="submit" class="btn btn-primary btn-lg flex-grow-1">Submit</button>
+            </div>
+          </form>
+          <div id="results" class="mt-4">
+            <!-- Results will be displayed here -->
+          </div>
+      </div>
+
+    </div>
+    
+  </div>
+
+  <script>
+    document.getElementById('drForm').addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const userId = document.getElementById('user_id').value;
+      const resultsDiv = document.getElementById('results');
+
+      // Clear previous results
+      resultsDiv.innerHTML = 'Please wait...';
+
+      if (!userId) {
+        resultsDiv.innerHTML = '<div class="alert alert-danger">User ID is required.</div>';
+        return;
+      }
+
+      try {
+        // Fetch results from the /json endpoint
+        const response = await fetch(`/json?user_id=${encodeURIComponent(userId)}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          resultsDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>PSN:</strong> ${data.psn}<br>
+                            <strong>Driver Name:</strong> ${data.driver_name}<br>
+                            <strong>Driver Rating:</strong> ${data.dr}<br>
+                            <strong>Driver Rank:</strong> ${data.rank}
+                        </div>
+                    `;
+        } else {
+          resultsDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${data.error || 'An unknown error occurred.'}
+                        </div>
+                    `;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message || 'Failed to fetch results.'}
+                    </div>
+                `;
+      }
+    });
+  </script>
+</body>
+
+</html>
