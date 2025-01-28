@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Rating Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #000;
+    }
+    .dr-display {
+      font-size: 60px;
+      font-weight: bold;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="dr-display" id="drDisplay"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('user_id');
+
+    if (!userId) {
+      document.getElementById('drDisplay').textContent = 'No user_id provided';
+    } else {
+      const fetchDr = async () => {
+        try {
+          const response = await fetch(`/json?user_id=${userId}`);
+          if (!response.ok) throw new Error('Failed to fetch');
+          const data = await response.json();
+          const formattedDr = data.dr ? new Intl.NumberFormat().format(data.dr) : 'No DR found';
+          document.getElementById('drDisplay').textContent = formattedDr;
+        } catch (error) {
+          document.getElementById('drDisplay').textContent = 'Error loading DR';
+          console.error(error);
+        }
+      };
+
+      fetchDr(); // Fetch immediately on load
+      setInterval(fetchDr, 60000); // Refresh every 60 seconds
+    }
+  </script>
+</body>
+</html>

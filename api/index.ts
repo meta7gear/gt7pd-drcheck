@@ -54,6 +54,10 @@ app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'index.html'));
 });
 
+app.get('/obs', function (req, res) {
+	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
