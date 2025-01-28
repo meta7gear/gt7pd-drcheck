@@ -31,12 +31,12 @@ const calculateRating = (driverRating, drPointRatio) => {
     case 3:
       return {
         rank: 'C',
-        rating: 5000 + 4999 * drPointRatio,
+        rating: 4000 + 5999 * drPointRatio,
       }
     case 2:
       return {
         rank: 'D',
-        rating: 4999 * drPointRatio,
+        rating: 3999 * drPointRatio,
       }
     case 1:
       return {
