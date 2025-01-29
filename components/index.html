@@ -7,16 +7,32 @@
   <title>Check Your DR</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container mt-5">
+  <div class="container my-2">
     <div class="row justify-content-center">
       <div class="col-lg-5">
-        <h1 class="text-center mb-4">Check Your DR</h1>
+        <div class="text-center">
+          <small>Early Access</small>
+        </div>
+        <h1 class="text-center mb-4">GTStats.Live </h1>
+        <h4 class="text-center mb-4">Check Your DR</h4>
           <form id="drForm" class="mb-3">
             <div class="mb-3">
-              <input type="text" class="form-control form-control-lg" id="user_id" placeholder="Enter your User ID" required>
+              <input type="text" class="form-control form-control-lg" id="user_id" placeholder="Enter your PSN or User ID" required>
             </div>
             <div class="d-flex justify-content-center">
               <button type="submit" class="btn btn-primary btn-lg flex-grow-1">Submit</button>
@@ -24,6 +40,24 @@
           </form>
           <div id="results" class="mt-4">
             <!-- Results will be displayed here -->
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <h5 class="card-title">Information about Driver Rankings</h5>
+              <small>
+                A+: 50,000 - 99,999, A: 30,000 - 49,999, B: 20,000 - 29,999, C: 10,000 - 19,999, D: 5,000 - 9,999
+              </small>
+            </div>
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <h5 class="card-title">How to find your user id</h5>
+              <small>
+                Currently you can only use your PSN to display your DR if you participated in the Daytona Gr 3 Time Trial and finished in the top 3000.
+                Visit <a href="https://www.gran-turismo.com/au/gt7/user/mymenu/" target="_blank">Gran Turismo</a> and login to your account. Your user id is a 36 character combination of letters and numbers and will be displayed in the URL.<br/><br/>
+                For example: <span class="text-secondary">gran-turismo.com/au/gt7/user/mymenu/</span><i>12s4e6c8-1v3q-eq3c-f2lo-k2e4w6vc90gf</i>/<span class="text-secondary">profile</span>
+              </small>
+            </div>
           </div>
       </div>
 
