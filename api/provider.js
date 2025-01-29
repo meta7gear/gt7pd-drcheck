@@ -65,4 +65,45 @@ const getStats = async (userId, accessToken) => {
   }
 };
 
-module.exports = { getToken, getStats };
+/**
+ * Fetches the user infor using the provided user url and access token.
+ * @param {string} userUrl - The user Url.
+ * @param {string} accessToken - The access token.
+ * @returns {Promise<object>} - The user object.
+ */
+const getUser = async (userUrl, accessToken) => {
+  try {
+    const uuidMatch = userUrl.match(/\/([0-9a-fA-F-]{36})(?:\/|$)/);
+    const uuid = uuidMatch ? uuidMatch[1] : null;
+
+    const response = await axios.post(
+      "https://web-api.gt7.game.gran-turismo.com/user/get_user_profile_by_user_id",
+      {
+        user_id: uuid,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0",
+        },
+      }
+    );
+
+    const data = response.data.result;
+
+    return {
+      onlineID: data.np_online_id,
+      nickname: data.nick_name,
+      user_id: data.user_id,
+    };
+  } catch (error) {
+    throw new Error(`Error in getUser: ${error.message}`);
+  }
+};
+
+
+
+
+module.exports = { getToken, getStats, getUser };

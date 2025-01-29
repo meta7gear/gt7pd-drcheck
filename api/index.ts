@@ -2,9 +2,11 @@ require('dotenv').config(); // Load environment variables
 
 const express = require("express");
 const cors = require("cors");
-const { getToken, getStats } = require("./provider");
+const { getToken, getStats, getUser } = require("./provider");
+const { getUserByPsn } = require("./psnProvider");
 const calculateRating = require("../helpers/calculateRating");
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -50,12 +52,84 @@ app.get("/json", async (req, res) => {
   }
 });
 
+app.get("/getUserByUrl", async (req, res) => {
+  const userUrl = req.query.user_url;
+
+  // Validate user_url parameter
+  if (!userUrl) {
+    return res.status(400).json({ error: "Missing user_url parameter" });
+  }
+
+  try {
+    const accessToken = await getToken(USER_COOKIE);
+    const user = await getUser(userUrl, accessToken);
+
+    const { onlineID, nickname, user_id } = user;
+
+    return res.json({
+      psn: onlineID,
+      driver_name: nickname,
+      user_id: user_id,
+    });
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
+  }
+});
+
+app.get("/getUserByPsn", async (req, res) => {
+  const userPsn = req.query.psn;
+
+  if (!userPsn) {
+    return res.status(400).json({ error: "Missing psn parameter" });
+  }
+
+  try {
+    const user = await getUserByPsn(userPsn);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({ user_id: user.user_id });
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
+  }
+});
+
 app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'index.html'));
 });
 
 app.get('/obs', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
+});
+
+app.get('/users', function (req, res) {
+	res.sendFile(path.join(__dirname, '..', 'components', 'users.html'));
+});
+
+app.get('/usersjson', function (req, res) {
+  const filePath = path.join(__dirname, '..', 'components', 'usersjson.json');
+  console.log(filePath);
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    console.log('do readFile');
+      if (err) {
+        console.log('do err');
+          return res.status(500).json({ error: 'Failed to read file' });
+      }
+
+      try {
+        console.log('do try');
+          const jsonData = JSON.parse(data); // Parse the JSON data
+          res.json(jsonData); // Send the JSON response
+      } catch (parseError) {
+        console.log('do catch');
+          return res.status(500).json({ error: 'Failed to parse JSON' });
+      }
+  });
 });
 
 // Start the server

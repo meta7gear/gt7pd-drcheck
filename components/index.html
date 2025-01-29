@@ -35,18 +35,33 @@
     document.getElementById('drForm').addEventListener('submit', async function (event) {
       event.preventDefault(); // Prevent default form submission
 
-      const userId = document.getElementById('user_id').value;
+      let userId = document.getElementById('user_id').value.trim();
       const resultsDiv = document.getElementById('results');
 
       // Clear previous results
       resultsDiv.innerHTML = 'Please wait...';
 
       if (!userId) {
-        resultsDiv.innerHTML = '<div class="alert alert-danger">User ID is required.</div>';
+        resultsDiv.innerHTML = '<div class="alert alert-danger">User ID or PSN is required.</div>';
         return;
       }
 
       try {
+        if (userId.length !== 36) {
+          const psnResponse = await fetch(`/getUserByPsn?psn=${encodeURIComponent(userId)}`);
+          const psnData = await psnResponse.json();
+          
+          if (!psnResponse.ok || !psnData.user_id) {
+            resultsDiv.innerHTML = `
+              <div class="alert alert-danger">
+                <strong>Error:</strong> PSN not found, please search by User ID.
+              </div>
+            `;
+            return;
+          }
+          
+          userId = psnData.user_id; // Update userId with the fetched value
+        }
         // Fetch results from the /json endpoint
         const response = await fetch(`/json?user_id=${encodeURIComponent(userId)}`);
         const data = await response.json();
