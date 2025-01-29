@@ -32,6 +32,15 @@
   </div>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('user_id');
+
+      if (userId) {
+        document.getElementById('user_id').value = userId;
+      }
+    });
+
     document.getElementById('drForm').addEventListener('submit', async function (event) {
       event.preventDefault(); // Prevent default form submission
 
@@ -59,7 +68,7 @@
             `;
             return;
           }
-          
+
           userId = psnData.user_id; // Update userId with the fetched value
         }
         // Fetch results from the /json endpoint
