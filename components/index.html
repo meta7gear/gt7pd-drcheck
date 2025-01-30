@@ -32,7 +32,7 @@
         <h4 class="text-center mb-4">Check Your DR</h4>
           <form id="drForm" class="mb-3">
             <div class="mb-3">
-              <input type="text" class="form-control form-control-lg" id="user_id" placeholder="Enter your PSN or User ID" required>
+              <input type="text" class="form-control form-control-lg text-center" id="user_id" placeholder="Enter your PSN or GT Profile Link" required>
             </div>
             <div class="d-flex justify-content-center">
               <button type="submit" class="btn btn-primary btn-lg flex-grow-1">Submit</button>
@@ -43,7 +43,7 @@
           </div>
           <div class="card mt-4">
             <div class="card-body">
-              <h5 class="card-title">Information about Driver Rankings</h5>
+              <h5 class="card-title">About Driver Ratings</h5>
               <small>
                 A+: 50,000 - 99,999, A: 30,000 - 49,999, B: 20,000 - 29,999, C: 10,000 - 19,999, D: 5,000 - 9,999
               </small>
@@ -51,11 +51,12 @@
           </div>
           <div class="card mt-4">
             <div class="card-body">
-              <h5 class="card-title">How to find your user id</h5>
+              <h5 class="card-title">How to Find Your Profile Link</h5>
               <small>
-                Currently you can only use your PSN to display your DR if you participated in the Daytona Gr 3 Time Trial and finished in the top 3000.
-                Visit <a href="https://www.gran-turismo.com/au/gt7/user/mymenu/" target="_blank">Gran Turismo</a> and login to your account. Your user id is a 36 character combination of letters and numbers and will be displayed in the URL.<br/><br/>
-                For example: <span class="text-secondary">gran-turismo.com/au/gt7/user/mymenu/</span><i>12s4e6c8-1v3q-eq3c-f2lo-k2e4w6vc90gf</i>/<span class="text-secondary">profile</span>
+                Currently only 10,000 PSN names are supported, based on the top 10,000 times submitted for Rd 1 during the official Manufacturers Cup in 2024. If you're unable to look up your DR by PSN, you will need to copy your profile link from the Gran Turismo website.<br /><br />
+                Visit <a href="https://www.gran-turismo.com/au/gt7/user/mymenu/" target="_blank">Gran Turismo</a> and login to your account.<br /><br />
+                After visiting "My Page" copy the entire URL of your profile into the form above and your ID will be extracted.
+                For example: <span class="text-secondary">https://gran-turismo.com/au/gt7/user/mymenu/12s4e6c8-1v3q-eq3c-f2lo-k2e4w6vc90gf/profile</span>
               </small>
             </div>
           </div>
@@ -90,21 +91,30 @@
       }
 
       try {
-        if (userId.length !== 36) {
-          const psnResponse = await fetch(`/getUserByPsn?psn=${encodeURIComponent(userId)}`);
-          const psnData = await psnResponse.json();
-          
-          if (!psnResponse.ok || !psnData.user_id) {
-            resultsDiv.innerHTML = `
-              <div class="alert alert-danger">
-                <strong>Error:</strong> PSN not found, please search by User ID.
-              </div>
-            `;
-            return;
-          }
+        const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+        if (!uuidRegex.test(userId)) {
+          // Check if input is a GT7 profile URL and extract UUID
+          const urlMatch = userId.match(/\/gt7\/user\/mymenu\/([a-f0-9-]{36})\/profile/i);
+          if (urlMatch) {
+            userId = urlMatch[1]; // Extracted UUID
+          } else {
+            // Attempt to fetch UUID by PSN
+            const psnResponse = await fetch(`/getUserByPsn?psn=${encodeURIComponent(userId)}`);
+            const psnData = await psnResponse.json();
 
-          userId = psnData.user_id; // Update userId with the fetched value
+            if (!psnResponse.ok || !psnData.user_id) {
+              resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                  <strong>Error:</strong> PSN not found, please try your Gran Turismo profile link.
+                </div>
+              `;
+              return;
+            }
+
+            userId = psnData.user_id; // Update userId with the fetched value
+          }
         }
+
         // Fetch results from the /json endpoint
         const response = await fetch(`/json?user_id=${encodeURIComponent(userId)}`);
         const data = await response.json();

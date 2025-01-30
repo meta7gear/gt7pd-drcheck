@@ -1,19 +1,25 @@
-const fs = require("fs").promises;
-const path = require("path");
-
-const usersFilePath = path.join(__dirname, "users.json");
+const db = require("./firebase");
 
 async function getUserByPsn(userPsn) {
   try {
-    // Read and parse users.json
-    const data = await fs.readFile(usersFilePath, "utf-8");
-    const users = JSON.parse(data);
+    const usersRef = db.collection("psn");
+    const snapshot = await usersRef.where("np_online_id", "==", userPsn).limit(1).get();
 
-    // Find user by np_online_id
-    return users.find((u) => u.np_online_id === userPsn) || null;
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const user = snapshot.docs[0].data();
+
+    return {
+      user_id: user.user_id,
+      nick_name: user.nick_name,
+      np_online_id: user.np_online_id,
+    };
+
   } catch (error) {
-    console.error("Error reading users file:", error.message);
-    throw new Error("Failed to read user data");
+    console.error("Error querying Firestore:", error.message);
+    throw new Error("Failed to fetch user data");
   }
 }
 
