@@ -48,7 +48,7 @@ app.get("/json", async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error.message);
-    return res.status(500).json({ error: "An error occurred", details: error.message });
+    return res.status(500).json({ error: "Unable to connect to the Gran Turismo api, please try again later.", details: error.message });
   }
 });
 

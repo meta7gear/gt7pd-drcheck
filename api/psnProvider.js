@@ -3,7 +3,10 @@ const db = require("./firebase");
 async function getUserByPsn(userPsn) {
   try {
     const usersRef = db.collection("psn");
-    const snapshot = await usersRef.where("np_online_id", "==", userPsn).limit(1).get();
+    const snapshot = await usersRef
+      .where("np_online_id_lc", "==", userPsn.toLowerCase())
+      .limit(1)
+      .get();
 
     if (snapshot.empty) {
       return null;
