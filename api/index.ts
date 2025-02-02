@@ -140,31 +140,27 @@ app.get('/obs', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
 });
 
-app.get('/users', function (req, res) {
-	res.sendFile(path.join(__dirname, '..', 'components', 'users.html'));
-});
+// app.get('/usersjson', function (req, res) {
+//   const filePath = path.join(__dirname, '..', 'components', 'usersjson.json');
+//   console.log(filePath);
 
-app.get('/usersjson', function (req, res) {
-  const filePath = path.join(__dirname, '..', 'components', 'usersjson.json');
-  console.log(filePath);
+//   fs.readFile(filePath, 'utf8', (err, data) => {
+//     console.log('do readFile');
+//       if (err) {
+//         console.log('do err');
+//           return res.status(500).json({ error: 'Failed to read file' });
+//       }
 
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    console.log('do readFile');
-      if (err) {
-        console.log('do err');
-          return res.status(500).json({ error: 'Failed to read file' });
-      }
-
-      try {
-        console.log('do try');
-          const jsonData = JSON.parse(data); // Parse the JSON data
-          res.json(jsonData); // Send the JSON response
-      } catch (parseError) {
-        console.log('do catch');
-          return res.status(500).json({ error: 'Failed to parse JSON' });
-      }
-  });
-});
+//       try {
+//         console.log('do try');
+//           const jsonData = JSON.parse(data); // Parse the JSON data
+//           res.json(jsonData); // Send the JSON response
+//       } catch (parseError) {
+//         console.log('do catch');
+//           return res.status(500).json({ error: 'Failed to parse JSON' });
+//       }
+//   });
+// });
 
 // Start the server
 app.listen(PORT, () => {

@@ -15,10 +15,38 @@
       font-family: 'Roboto', sans-serif;
       background-color: #000;
     }
+
     .dr-display {
       font-size: 60px;
       font-weight: bold;
       color: #fff;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px; /* Space between text and arrow */
+    }
+
+    .dr-display::before {
+      content: "▲";
+      color: #00ff00; /* Bright green */
+      font-size: 30px;
+      opacity: 0;
+    }
+
+    /* Green up arrow */
+    .dr-up::before {
+      content: "▲";
+      color: #00ff00; /* Bright green */
+      font-size: 30px;
+      opacity: 1;
+    }
+
+    /* Red down arrow */
+    .dr-down::before {
+      content: "▼";
+      color: #ff0000; /* Bright red */
+      font-size: 30px;
+      opacity: 1;
     }
   </style>
 </head>
@@ -28,7 +56,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const userId = params.get('user_id');
-
+  
     if (!userId) {
       document.getElementById('drDisplay').textContent = 'No user_id provided';
     } else {
@@ -36,15 +64,36 @@
         try {
           const response = await fetch(`/json?user_id=${userId}`);
           if (!response.ok) throw new Error('Failed to fetch');
+          
           const data = await response.json();
-          const formattedDr = data.dr ? new Intl.NumberFormat().format(data.dr) : 'No DR found';
-          document.getElementById('drDisplay').textContent = formattedDr;
+          const newDr = data.dr ? data.dr : null;
+          const drDisplay = document.getElementById('drDisplay');
+  
+          if (newDr !== null) {
+            const previousDr = localStorage.getItem(`dr_${userId}`);
+            localStorage.setItem(`dr_${userId}`, newDr);
+  
+            if (previousDr !== null) {
+              const prevDrValue = parseFloat(previousDr);
+              const newDrValue = parseFloat(newDr);
+  
+              if (newDrValue > prevDrValue) {
+                drDisplay.classList.add("dr-up");
+              } else if (newDrValue < prevDrValue) {
+                drDisplay.classList.add("dr-down");
+              }
+            }
+  
+            drDisplay.textContent = new Intl.NumberFormat().format(newDr);
+          } else {
+            drDisplay.textContent = 'No DR found';
+          }
         } catch (error) {
           document.getElementById('drDisplay').textContent = 'Error loading DR';
           console.error(error);
         }
       };
-
+  
       fetchDr(); // Fetch immediately on load
       setInterval(fetchDr, 60000); // Refresh every 60 seconds
     }
