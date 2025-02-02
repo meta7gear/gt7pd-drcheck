@@ -77,6 +77,40 @@ app.get("/getUserByUrl", async (req, res) => {
   }
 });
 
+app.get("/getJsonByPsn", async (req, res) => {
+  const userPsn = req.query.psn;
+
+  if (!userPsn) {
+    return res.status(400).json({ error: "Missing psn parameter" });
+  }
+
+  try {
+    const user = await getUserByPsn(userPsn);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const accessToken = await getToken(USER_COOKIE);
+    const stats = await getStats(user.user_id, accessToken);
+
+    const { drPointRatio, driverRating, onlineID, nickname } = stats;
+    const calculatedRating = calculateRating(driverRating, drPointRatio);
+
+    return res.json({
+      message: `Driver Rating for user ${onlineID} (${nickname}):`,
+      psn: onlineID,
+      driver_name: nickname,
+      dr: Math.round(calculatedRating.rating),
+      rank: calculatedRating.rank,
+    });
+
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
+  }
+});
+
 app.get("/getUserByPsn", async (req, res) => {
   const userPsn = req.query.psn;
 
