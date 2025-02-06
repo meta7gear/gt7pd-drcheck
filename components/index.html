@@ -10,13 +10,36 @@
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background-color: #f8f9fa;
+      background-color: #1a2931;
+      color: #fff;
     }
 
-    .card {
+    .badge {
+    cursor: pointer;
+  }
+  .badge:hover {
+    opacity: 0.8;
+  }
+
+  .image-rounded {
+    border-radius: 50%;
+  }
+
+  .popular-avatars {
+    gap: 20px;
+  }
+  .popular-avatars img {
+    width: 75px;
+    height: 75px;
+    cursor: pointer;
+  }
+
+  .card {
       border: none;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #1e3441;
+      color: #fff;
     }
   </style>
 </head>
@@ -25,11 +48,9 @@
   <div class="container my-2">
     <div class="row justify-content-center">
       <div class="col-lg-5">
-        <div class="text-center">
-          <small>Early Access</small>
+        <div class="text-center mb-4">
+          <img src="/gtstats.png" class="img-fluid" alt="GT Stats" style="width: 160px;" />
         </div>
-        <h1 class="text-center mb-4">GTStats.Live </h1>
-        <h4 class="text-center mb-4">Check Your DR</h4>
           <form id="drForm" class="mb-3">
             <div class="mb-3">
               <input type="text" class="form-control form-control-lg text-center" id="user_id" placeholder="Enter your PSN or GT Profile Link" required>
@@ -40,6 +61,19 @@
           </form>
           <div id="results" class="mt-4">
             <!-- Results will be displayed here -->
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <div class="text-center text-small mb-3">
+                Quick look up
+              </div>
+              <div class="d-flex justify-content-center popular-avatars">
+                <img src="/avatar_digit.jpg" alt="Digit" data-userId="70ee665b-5cab-4ff0-ad6d-668ba1b11f91" class="image-rounded" />
+                <img src="/avatar_kie.jpg" alt="Kie" data-userId="f529f2c4-5cd2-40d7-b6bb-80cbf2aab784" class="image-rounded" />
+                <img src="/avatar_supergt.jpg" alt="Supergt" data-userId="d4fa38a2-9cc2-4a7d-ada9-43c23bf3692c" class="image-rounded" />
+                <img src="/avatar_omega.jpg" alt="Omega" data-userId="103a27be-4a2f-4100-9bbb-054f9006037d" class="image-rounded" />
+              </div>
+            </div>
           </div>
           <div class="card mt-4">
             <div class="card-body">
@@ -79,12 +113,25 @@
       if (userId) {
         document.getElementById('user_id').value = userId;
       }
+
+      document.querySelectorAll('.popular-avatars img').forEach(img => {
+        img.addEventListener('click', function () {
+            const userId = this.getAttribute('data-userId');
+            if (userId) {
+                getResults(userId);
+            }
+        });
+      });
     });
 
-    document.getElementById('drForm').addEventListener('submit', async function (event) {
+    document.getElementById('drForm').addEventListener('submit', function (event) {
       event.preventDefault(); // Prevent default form submission
-
       let userId = document.getElementById('user_id').value.trim();
+      getResults(userId);
+    });
+
+    async function getResults(userId) {
+      
       const resultsDiv = document.getElementById('results');
 
       // Clear previous results
@@ -147,8 +194,7 @@
                     </div>
                 `;
       }
-    });
+    }
   </script>
 </body>
-
 </html>

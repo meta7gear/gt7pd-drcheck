@@ -14,6 +14,7 @@ const PORT = 3000;
 
 app.use(cors());
 
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Get the session ID from the environment variable
 const USER_SESSION_ID = process.env.USER_SESSION_ID;
