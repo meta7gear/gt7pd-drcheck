@@ -2,6 +2,17 @@
 <html lang="en">
 
 <head>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4H0ZKCWNT7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4H0ZKCWNT7');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Check Your DR</title>
@@ -17,24 +28,31 @@
     .badge {
     cursor: pointer;
   }
-  .badge:hover {
-    opacity: 0.8;
-  }
+    .badge:hover {
+      opacity: 0.8;
+    }
 
-  .image-rounded {
-    border-radius: 50%;
-  }
+    .image-rounded {
+      border-radius: 50%;
+    }
 
-  .popular-avatars {
-    gap: 20px;
-  }
-  .popular-avatars img {
-    width: 75px;
-    height: 75px;
-    cursor: pointer;
-  }
+    .popular-avatars {
+      gap: 20px;
+    }
+    .popular-avatars img {
+      width: 75px;
+      height: 75px;
+      cursor: pointer;
+    }
 
-  .card {
+    @media(max-width: 576px) {
+      .popular-avatars img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    .card {
       border: none;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
