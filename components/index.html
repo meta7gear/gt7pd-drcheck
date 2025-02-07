@@ -148,6 +148,32 @@
       getResults(userId);
     });
 
+    const sumSequence = (firstTerm, count, difference) => (count / 2) * (2 * firstTerm + (count - 1) * difference);
+
+    const calculateRacePoints = (driverRating) => {
+      const NUM_DRIVERS = 16;
+      const RATING_GAP = 600;
+      const POINTS_DIVISOR = 206;
+
+      // Low estimate (user is the highest rated)
+      let highestRating = driverRating;
+      let sumRating = sumSequence(highestRating, NUM_DRIVERS, -RATING_GAP);
+      const avgLow = sumRating / NUM_DRIVERS;
+      const pointsLow = avgLow / POINTS_DIVISOR;
+
+      // High estimate (user is the lowest rated)
+      highestRating = driverRating + (15 * RATING_GAP);
+      sumRating = sumSequence(highestRating, NUM_DRIVERS, -RATING_GAP);
+      const avgHigh = sumRating / NUM_DRIVERS;
+      const pointsHigh = avgHigh / POINTS_DIVISOR;
+
+      return {
+          low: pointsLow.toFixed(0),
+          med: (driverRating / POINTS_DIVISOR).toFixed(0),
+          high: pointsHigh.toFixed(0),
+      };
+    };
+
     async function getResults(userId) {
       
       const resultsDiv = document.getElementById('results');
@@ -190,12 +216,14 @@
         const data = await response.json();
 
         if (response.ok) {
+          const racePoints = calculateRacePoints(data.dr);
           resultsDiv.innerHTML = `
                         <div class="alert alert-success">
                             <strong>PSN:</strong> ${data.psn}<br>
                             <strong>Driver Name:</strong> ${data.driver_name}<br>
                             <strong>Driver Rating:</strong> ${data.dr}<br>
-                            <strong>Driver Rank:</strong> ${data.rank}
+                            <strong>Driver Rank:</strong> ${data.rank}<br>
+                            <strong>GTWS Points Est:</strong> ${racePoints.med } <small>(▼${ racePoints.low } - ▲${ racePoints.high })</small>
                         </div>
                     `;
         } else {
