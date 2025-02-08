@@ -51,6 +51,7 @@ app.get("/json", async (req, res) => {
       psn: onlineID,
       driver_name: nickname,
       dr: Math.round(calculatedRating.rating),
+      drPointRatio: drPointRatio,
       rank: calculatedRating.rank,
     });
   } catch (error) {
