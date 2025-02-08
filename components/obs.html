@@ -78,8 +78,10 @@
               const newDrValue = parseFloat(newDr);
   
               if (newDrValue > prevDrValue) {
+                drDisplay.classList.remove("dr-down");
                 drDisplay.classList.add("dr-up");
               } else if (newDrValue < prevDrValue) {
+                drDisplay.classList.remove("dr-up");
                 drDisplay.classList.add("dr-down");
               }
             }

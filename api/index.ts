@@ -3,7 +3,7 @@ require('dotenv').config(); // Load environment variables
 const express = require("express");
 const cors = require("cors");
 const { getToken, getStats, getUser } = require("./provider");
-const { getUserByPsn } = require("./psnProvider");
+const { addUser, getUserByPsn } = require("./psnProvider");
 const calculateRating = require("../helpers/calculateRating");
 const path = require('path');
 const fs = require('fs');
@@ -11,7 +11,13 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
-
+// CORS configuration
+const corsOptions = {
+  origin: "https://gt7pd-drcheck.vercel.app",
+  methods: ["POST"],
+  optionsSuccessStatus: 200, // For legacy browser support
+};
+app.use(express.json()); // This line is crucial
 app.use(cors());
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -141,27 +147,23 @@ app.get('/obs', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
 });
 
-// app.get('/usersjson', function (req, res) {
-//   const filePath = path.join(__dirname, '..', 'components', 'usersjson.json');
-//   console.log(filePath);
+app.post("/saveUser", async (req, res) => {
+  try {
+    const user = req.body;
+    // Validate the incoming user object
+    if (!user || !user.user_id || !user.np_online_id || !user.nick_name) {
+      return res.status(400).json({ error: "Invalid user data" });
+    }
 
-//   fs.readFile(filePath, 'utf8', (err, data) => {
-//     console.log('do readFile');
-//       if (err) {
-//         console.log('do err');
-//           return res.status(500).json({ error: 'Failed to read file' });
-//       }
+    // Call the addUser function
+    const addedUser = await addUser(user);
+    return res.status(201).json(addedUser);
 
-//       try {
-//         console.log('do try');
-//           const jsonData = JSON.parse(data); // Parse the JSON data
-//           res.json(jsonData); // Send the JSON response
-//       } catch (parseError) {
-//         console.log('do catch');
-//           return res.status(500).json({ error: 'Failed to parse JSON' });
-//       }
-//   });
-// });
+  } catch (error) {
+    console.error("Error adding user:", error.message);
+    return res.status(500).json({ error: "Failed to add user" });
+  }
+});
 
 // Start the server
 app.listen(PORT, () => {
