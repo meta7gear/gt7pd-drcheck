@@ -110,6 +110,7 @@ app.get("/getJsonByPsn", async (req, res) => {
       psn: onlineID,
       driver_name: nickname,
       dr: Math.round(calculatedRating.rating),
+      drPointRatio: drPointRatio,
       rank: calculatedRating.rank,
     });
 
@@ -146,6 +147,10 @@ app.get('/', function (req, res) {
 
 app.get('/obs', function (req, res) {
 	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
+});
+
+app.get('/timer', function (req, res) {
+  res.sendFile(path.join(__dirname, '..', 'components', 'timer.html'));
 });
 
 app.post("/saveUser", async (req, res) => {

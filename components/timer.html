@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4H0ZKCWNT7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4H0ZKCWNT7');
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Light Reaction Timer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #1a2931;
+      color: #fff;
+      text-align: center;
+    }
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #1e3441;
+      color: #fff;
+    }
+    .lights {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    .light {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        min-height: 50px;
+        border-radius: 50%;
+        background: gray;
+    }
+    .red { background: red; }
+    .hidden { display: none; }
+    .timer {
+        font-size: 2em;
+        margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="touch-area">
+
+  </div>
+  <div class="container-fluid container-md py-2">
+    <div class="row justify-content-center">
+      <div class="col-lg-5">
+        <div class="text-center mb-4">
+          <img src="/gtstats.png" class="img-fluid" alt="GT Stats" style="width: 160px;" />
+        </div>
+        <h1>Start Light Reaction Timer</h1>
+        <small id="desktop-instruction">Wait for the 5 red lights to go out then press <span class="badge bg-secondary">Space</span></small>
+        <small id="mobile-instruction">Wait for the 5 red lights to go out then tap to stop the timer</small>
+          <div class="card card-body mt-4 py-5">
+            <div class="lights">
+              <div class="light" id="light1"></div>
+              <div class="light" id="light2"></div>
+              <div class="light" id="light3"></div>
+              <div class="light" id="light4"></div>
+              <div class="light" id="light5"></div>
+            </div>
+          </div>
+        <div class="timer" id="timer"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+      let startTime, timerInterval, gameStarted = false, lightsOn = 0, sequenceStarted = false; jumpStart = false;
+      let startInstruction = 'Press Space to Start';
+      const lights = [...document.querySelectorAll('.light')];
+      const timerDisplay = document.getElementById('timer');
+
+      function resetGame(message = '') {
+          clearInterval(timerInterval);
+          stopTimer();
+          gameStarted = false;
+          sequenceStarted = false;
+          lightsOn = 0;
+          lights.forEach(light => light.classList.remove('red'));
+          timerDisplay.textContent = message || startInstruction;
+      }
+
+      async function startLights() {
+          sequenceStarted = true;
+          timerDisplay.textContent = '';
+          for (let i = 0; i < lights.length; i++) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              if (!jumpStart) {
+                lights[i].classList.add('red');
+                lightsOn++;
+              }
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+          if (!jumpStart) {
+            lights.forEach(light => light.classList.remove('red'));
+            // lightsOn = 0;
+            startTimer();
+          }
+      }
+
+      function startTimer() {
+          startTime = performance.now();
+          gameStarted = true;
+          timerInterval = setInterval(() => {
+              const elapsed = (performance.now() - startTime) / 1000;
+              timerDisplay.textContent = elapsed.toFixed(3) + ' s';
+          }, 10);
+      }
+
+      function stopTimer() {
+          if (gameStarted) {
+              clearInterval(timerInterval);
+              gameStarted = false;
+          }
+      }
+
+      document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+          actionButton();
+        }
+      });
+
+      function actionButton() {
+        if (!sequenceStarted) {
+            startLights();
+        } else if (lightsOn < 4) {
+          return;
+        } else if (lightsOn >= 4 && !gameStarted) {
+          jumpStart = true;
+          resetGame('Jump Start!');
+          stopTimer();
+        } else if (gameStarted) {
+          stopTimer();
+        }
+      }
+
+      resetGame();
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+        if (isTouchDevice) {
+          startInstruction = "Tap anywhere to start";
+        }
+        
+        document.getElementById("desktop-instruction").style.display = isTouchDevice ? "none" : "inline";
+        document.getElementById("mobile-instruction").style.display = isTouchDevice ? "inline" : "none";
+
+        document.addEventListener("touchstart", function () {
+            actionButton();
+        });
+    });
+  </script>
+</body>
+</html>
