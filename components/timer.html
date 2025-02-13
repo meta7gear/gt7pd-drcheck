@@ -60,8 +60,10 @@
           <img src="/gtstats.png" class="img-fluid" alt="GT Stats" style="width: 160px;" />
         </div>
         <h1>Start Light Reaction Timer</h1>
-        <small id="desktop-instruction">Wait for the 5 red lights to go out then press <span class="badge bg-secondary">Space</span></small>
-        <small id="mobile-instruction">Wait for the 5 red lights to go out then tap to stop the timer</small>
+        <div id="desktop-instruction">Wait for the 5 red lights to go out then press <span class="badge bg-secondary">Space</span><br><br>
+          Press <span class="badge bg-secondary">Space</span> to start </div>
+        <div id="mobile-instruction">Wait for the 5 red lights to go out then tap to stop the timer<br><br>
+        Tap anywhere to start</div>
           <div class="card card-body mt-4 py-5">
             <div class="lights">
               <div class="light" id="light1"></div>
@@ -77,8 +79,7 @@
   </div>
   
   <script>
-      let startTime, timerInterval, gameStarted = false, lightsOn = 0, sequenceStarted = false; jumpStart = false;
-      let startInstruction = 'Press Space to Start';
+      let startTime, timerInterval, gameStarted = false, lightsOn = 0, sequenceStarted = false; jumpStart = false; gameEnded = true;
       const lights = [...document.querySelectorAll('.light')];
       const timerDisplay = document.getElementById('timer');
 
@@ -86,10 +87,11 @@
           clearInterval(timerInterval);
           stopTimer();
           gameStarted = false;
+          gameEnded = true;
           sequenceStarted = false;
           lightsOn = 0;
           lights.forEach(light => light.classList.remove('red'));
-          timerDisplay.textContent = message || startInstruction;
+          timerDisplay.textContent = message;
       }
 
       async function startLights() {
@@ -124,6 +126,7 @@
           if (gameStarted) {
               clearInterval(timerInterval);
               gameStarted = false;
+              gameEnded = true;
           }
       }
 
@@ -138,7 +141,7 @@
             startLights();
         } else if (lightsOn < 4) {
           return;
-        } else if (lightsOn >= 4 && !gameStarted) {
+        } else if (lightsOn >= 4 && !gameStarted && !gameEnded) {
           jumpStart = true;
           resetGame('Jump Start!');
           stopTimer();
@@ -151,13 +154,9 @@
 
       document.addEventListener("DOMContentLoaded", function () {
         const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-        if (isTouchDevice) {
-          startInstruction = "Tap anywhere to start";
-        }
         
-        document.getElementById("desktop-instruction").style.display = isTouchDevice ? "none" : "inline";
-        document.getElementById("mobile-instruction").style.display = isTouchDevice ? "inline" : "none";
+        document.getElementById("desktop-instruction").style.display = isTouchDevice ? "none" : "block";
+        document.getElementById("mobile-instruction").style.display = isTouchDevice ? "block" : "none";
 
         document.addEventListener("touchstart", function () {
             actionButton();
