@@ -79,25 +79,24 @@
   </div>
   
   <script>
-      let startTime, timerInterval, gameStarted = false, lightsOn = 0, sequenceStarted = false; jumpStart = false; gameEnded = true;
+      let startTime = 0;
+      let timerInterval = 0;
+      let sequenceStarted = false;
+      let timerStarted = false;
+      let lightsOn = 0;
+      
+      let jumpStart = false;
+      let gameEnded = false;
+
       const lights = [...document.querySelectorAll('.light')];
       const timerDisplay = document.getElementById('timer');
-
-      function resetGame(message = '') {
-          clearInterval(timerInterval);
-          stopTimer();
-          gameStarted = false;
-          gameEnded = true;
-          sequenceStarted = false;
-          lightsOn = 0;
-          lights.forEach(light => light.classList.remove('red'));
-          timerDisplay.textContent = message;
-      }
 
       async function startLights() {
           sequenceStarted = true;
           timerDisplay.textContent = '';
-          for (let i = 0; i < lights.length; i++) {
+          lights[0].classList.add('red');
+          lightsOn = 1;
+          for (let i = 1; i < lights.length; i++) {
               await new Promise(resolve => setTimeout(resolve, 1000));
               if (!jumpStart) {
                 lights[i].classList.add('red');
@@ -108,14 +107,14 @@
           await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
           if (!jumpStart) {
             lights.forEach(light => light.classList.remove('red'));
-            // lightsOn = 0;
+            lightsOn = 0;
             startTimer();
           }
       }
 
       function startTimer() {
           startTime = performance.now();
-          gameStarted = true;
+          timerStarted = true;
           timerInterval = setInterval(() => {
               const elapsed = (performance.now() - startTime) / 1000;
               timerDisplay.textContent = elapsed.toFixed(3) + ' s';
@@ -123,11 +122,19 @@
       }
 
       function stopTimer() {
-          if (gameStarted) {
-              clearInterval(timerInterval);
-              gameStarted = false;
-              gameEnded = true;
-          }
+        if (timerStarted) {
+          clearInterval(timerInterval);
+          timerStarted = false;
+          gameEnded = true;
+        }
+      }
+
+      function endGame(message = '') {
+        clearInterval(timerInterval);
+        timerStarted = false;
+        gameEnded = true;
+        sequenceStarted = false;
+        timerDisplay.textContent = message;
       }
 
       document.addEventListener('keydown', (event) => {
@@ -137,20 +144,21 @@
       });
 
       function actionButton() {
-        if (!sequenceStarted) {
-            startLights();
-        } else if (lightsOn < 4) {
+        if(gameEnded) {
           return;
-        } else if (lightsOn >= 4 && !gameStarted && !gameEnded) {
+        }
+
+        if (!sequenceStarted) {
+          startLights();
+        } else if (timerStarted) {
+          stopTimer();
+        } else if (sequenceStarted && lightsOn < 3) {
+          return;
+        } else if (sequenceStarted && lightsOn >= 4) {
           jumpStart = true;
-          resetGame('Jump Start!');
-          stopTimer();
-        } else if (gameStarted) {
-          stopTimer();
+          endGame('Jump Start!');
         }
       }
-
-      resetGame();
 
       document.addEventListener("DOMContentLoaded", function () {
         const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -159,7 +167,7 @@
         document.getElementById("mobile-instruction").style.display = isTouchDevice ? "block" : "none";
 
         document.addEventListener("touchstart", function () {
-            actionButton();
+          actionButton();
         });
     });
   </script>
