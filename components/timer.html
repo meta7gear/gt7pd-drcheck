@@ -126,6 +126,20 @@
           clearInterval(timerInterval);
           timerStarted = false;
           gameEnded = true;
+
+          // Get the timer value and strip the " s" at the end
+          let timerElement = document.getElementById('timer');
+          if (timerElement) {
+              let timerText = timerElement.textContent.trim(); // Get text content
+              let timerValue = parseFloat(timerText.replace(" s", "")); // Remove " s" and convert to number
+              
+              // Send event to Google Analytics
+              gtag('event', 'timerValue', {
+                  'event_category': 'Game',
+                  'event_label': 'Timer Stopped',
+                  'value': timerValue
+              });
+          }
         }
       }
 
