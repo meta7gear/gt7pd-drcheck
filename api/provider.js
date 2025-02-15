@@ -52,13 +52,23 @@ const getStats = async (userId, accessToken) => {
       }
     );
 
-    const data = response.data.result.user;
-
+    const user = response.data.result.user;
+    const sports_mode = response.data.result.sports_mode;
+    
     return {
-      drPointRatio: data.dr_point_ratio,
-      driverRating: data.driver_rating,
-      onlineID: data.np_online_id,
-      nickname: data.nick_name,
+      drPointRatio: user.dr_point_ratio,
+      driverRating: user.driver_rating,
+      onlineID: user.np_online_id,
+      nickname: user.nick_name,
+      userID: user.user_id,
+      isStarPlayer: user.is_star_player,
+      manufacturerID: user.manufacturer_id,
+      sportsmanshipRating: user.sportsmanship_rating,
+      countryCode: user.country_code,
+      raceCount: sports_mode.race_count,
+      polePositionCount: sports_mode.pole_position_count,
+      fastestLapCount: sports_mode.fastest_lap_count,
+      winCount: sports_mode.win_count,
     };
   } catch (error) {
     throw new Error(`Error in getStats: ${error.message}`);

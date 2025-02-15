@@ -42,17 +42,23 @@ app.get("/json", async (req, res) => {
   try {
     const accessToken = await getToken(USER_COOKIE);
     const stats = await getStats(userId, accessToken);
-
-    const { drPointRatio, driverRating, onlineID, nickname } = stats;
-    const calculatedRating = calculateRating(driverRating, drPointRatio);
+    const calculatedRating = calculateRating(stats.driverRating, stats.drPointRatio);
 
     return res.json({
-      message: `Driver Rating for user ${onlineID} (${nickname}):`,
-      psn: onlineID,
-      driver_name: nickname,
+      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+      psn: stats.onlineID,
+      driver_name: stats.nickname,
       dr: Math.round(calculatedRating.rating),
-      drPointRatio: drPointRatio,
+      drPointRatio: stats.drPointRatio,
       rank: calculatedRating.rank,
+      sr: stats.sportsmanshipRating,
+      userID: stats.userID,
+      manufacturerID: stats.manufacturerID,
+      countryCode: stats.countryCode,
+      raceCount: stats.raceCount,
+      polePositionCount: stats.polePositionCount,
+      fastestLapCount: stats.fastestLapCount,
+      winCount: stats.winCount,
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -71,7 +77,6 @@ app.get("/getUserByUrl", async (req, res) => {
   try {
     const accessToken = await getToken(USER_COOKIE);
     const user = await getUser(userUrl, accessToken);
-
     const { onlineID, nickname, user_id } = user;
 
     return res.json({
@@ -101,17 +106,23 @@ app.get("/getJsonByPsn", async (req, res) => {
 
     const accessToken = await getToken(USER_COOKIE);
     const stats = await getStats(user.user_id, accessToken);
-
-    const { drPointRatio, driverRating, onlineID, nickname } = stats;
-    const calculatedRating = calculateRating(driverRating, drPointRatio);
+    const calculatedRating = calculateRating(stats.driverRating, stats.drPointRatio);
 
     return res.json({
-      message: `Driver Rating for user ${onlineID} (${nickname}):`,
-      psn: onlineID,
-      driver_name: nickname,
+      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+      psn: stats.onlineID,
+      driver_name: stats.nickname,
       dr: Math.round(calculatedRating.rating),
-      drPointRatio: drPointRatio,
+      drPointRatio: stats.drPointRatio,
       rank: calculatedRating.rank,
+      sr: stats.sportsmanshipRating,
+      userID: stats.userID,
+      manufacturerID: stats.manufacturerID,
+      countryCode: stats.countryCode,
+      raceCount: stats.raceCount,
+      polePositionCount: stats.polePositionCount,
+      fastestLapCount: stats.fastestLapCount,
+      winCount: stats.winCount,
     });
 
   } catch (error) {
