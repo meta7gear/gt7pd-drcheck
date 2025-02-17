@@ -3,7 +3,7 @@ require('dotenv').config(); // Load environment variables
 const express = require("express");
 const cors = require("cors");
 const { getToken, getStats, getUser } = require("./provider");
-const { addUser, getUserByPsn } = require("./psnProvider");
+const { addUser, getUserByPsn, saveDailyStats, updateUserStatsHistory } = require("./psnProvider");
 const calculateRating = require("../helpers/calculateRating");
 const path = require('path');
 const fs = require('fs');
@@ -44,8 +44,7 @@ app.get("/json", async (req, res) => {
     const stats = await getStats(userId, accessToken);
     const calculatedRating = calculateRating(stats.driverRating, stats.drPointRatio);
 
-    return res.json({
-      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+    const params = {
       psn: stats.onlineID,
       driver_name: stats.nickname,
       dr: Math.round(calculatedRating.rating),
@@ -59,6 +58,14 @@ app.get("/json", async (req, res) => {
       polePositionCount: stats.polePositionCount,
       fastestLapCount: stats.fastestLapCount,
       winCount: stats.winCount,
+    };
+
+    saveDailyStats(params);
+    updateUserStatsHistory(params);
+
+    return res.json({
+      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+      ...params,
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -108,8 +115,7 @@ app.get("/getJsonByPsn", async (req, res) => {
     const stats = await getStats(user.user_id, accessToken);
     const calculatedRating = calculateRating(stats.driverRating, stats.drPointRatio);
 
-    return res.json({
-      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+    const params = {
       psn: stats.onlineID,
       driver_name: stats.nickname,
       dr: Math.round(calculatedRating.rating),
@@ -123,6 +129,14 @@ app.get("/getJsonByPsn", async (req, res) => {
       polePositionCount: stats.polePositionCount,
       fastestLapCount: stats.fastestLapCount,
       winCount: stats.winCount,
+    };
+
+    saveDailyStats(params);
+    updateUserStatsHistory(params);
+
+    return res.json({
+      message: `Driver Rating for user ${stats.onlineID} (${stats.nickname}):`,
+      ...params,
     });
 
   } catch (error) {
@@ -157,14 +171,14 @@ app.get('/', function (req, res) {
 });
 
 app.get('/obs', function (req, res) {
-	res.sendFile(path.join(__dirname, '..', 'components', 'obs.html'));
+	res.sendFile(path.join(__dirname, '..', 'components', 'index.html'));
 });
 
 app.get('/timer', function (req, res) {
   res.sendFile(path.join(__dirname, '..', 'components', 'timer.html'));
 });
 
-app.post("/saveUser", async (req, res) => {
+app.post('/saveUser', async (req, res) => {
   try {
     const user = req.body;
     // Validate the incoming user object
