@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4H0ZKCWNT7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4H0ZKCWNT7');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Your Driver Rating | Gran Turismo 7</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #1a2931;
+      color: #fff;
+    }
+
+    .badge {
+    cursor: pointer;
+  }
+    .badge:hover {
+      opacity: 0.8;
+    }
+
+    .image-rounded {
+      border-radius: 50%;
+    }
+
+    .popular-avatars {
+      gap: 20px;
+    }
+    .popular-avatars .avatar-img {
+      width: 75px;
+      height: 75px;
+      cursor: pointer;
+    }
+
+    .popular-avatars a.icon-youtube {
+      margin-top: -16px;
+    }
+
+    .popular-avatars a.icon-youtube img {
+      width: 28px;
+      height: auto;
+    }
+
+    @media(max-width: 576px) {
+      .popular-avatars .avatar-img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #1e3441;
+      color: #fff;
+    }
+
+    .results-card {
+      background-color: #2D4D66;
+    }
+
+    .results-driver-name {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .results-driver-name span {
+      opacity: 0.5; 
+    }
+
+    .result-stat {
+      background-color: #223340;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .results-stats {
+      display: flex;
+      gap: 15px;
+    }
+
+    .result-rating {
+      font-size: 42px;
+      font-weight: bold;
+    }
+
+    @media(max-width: 576px) {
+      .results-stats {
+        flex-direction: column;
+      }
+      .results-driver-name {
+        font-size: 18px;
+      }
+      .result-rating {
+        font-size: 32px;
+      }
+    }
+
+    .progress {
+      --bs-progress-bg: #1D2830;
+      box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      --bs-progress-height: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid container-md py-2">
+    <div class="row justify-content-center">
+      <div class="col-lg-9" style="max-width: 650px;">
+        <div class="text-center mb-4">
+          <img src="/gtstats.png" class="img-fluid" alt="GT Stats" style="width: 160px;" />
+        </div>
+          <form id="drForm" class="mb-3">
+            <div class="mb-3">
+              <input type="text" class="form-control form-control-lg text-center" id="user_id" placeholder="Enter your PSN or GT Profile Link" required>
+            </div>
+            <div class="d-flex justify-content-center">
+              <button type="submit" class="btn btn-primary btn-lg flex-grow-1">Check My DR</button>
+            </div>
+          </form>
+          <div id="results" class="mt-4">
+            <!-- Results will be displayed here -->
+          </div>
+          <div id="results-share" class="share text-center mt-4" style="display: none;">
+            <button class="btn btn-primary btn-sm" onclick="share();">Share Results</button>
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <div class="text-center text-small mb-3">
+                Check Streamer DR
+              </div>
+              <div class="d-flex justify-content-center popular-avatars">
+                
+              </div>
+            </div>
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <h5 class="card-title">About Driver Ratings</h5>
+              <small>
+                A+: 50,000 - 150,000, A: 30,000 - 49,999, B: 10,000 - 29,999, C: 4,000 - 9,999, D: 0 - 3,999
+              </small>
+              <h5 class="card-title mt-4">About GTWS Pts</h5>
+              <small>
+                This is an estimate of the highest points awarded for a lobby of drivers at your skill level based on your current Driver Rating. A low and high number are also given as a range of what to expect.
+              </small>
+            </div>
+          </div>
+          <div class="card mt-4">
+            <div class="card-body">
+              <h5 class="card-title">How to Find Your Profile Link</h5>
+              <small>
+                Around 20,000 PSN's are currently stored in the database sampled from drivers who took part in the 2025 exhibition season. If your PSN can't be found in the database you will need to copy your profile link from the Gran Turismo website to add it to our site.<br /><br />
+                Visit <a href="https://www.gran-turismo.com/au/gt7/user/mymenu/" target="_blank">Gran Turismo</a> and login to your account.<br /><br />
+                After visiting "My Page" copy the entire URL of your profile into the form above and your ID will be extracted.
+                For example: <span class="text-secondary">https://gran-turismo.com/au/gt7/user/mymenu/12s4e6c8-1v3q-eq3c-f2lo-k2e4w6vc90gf/profile</span>
+              </small>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <script>
+    // Array of driver objects
+    const drivers = [
+      {
+        name: "Meta",
+        imgSrc: "/avatar_meta.jpg",
+        userId: "267ac1a2-1e05-403b-8dca-5d4e2e0a0b17",
+        youtubeLink: "https://www.youtube.com/@meta7gear",
+      },
+      {
+        name: "Digit",
+        imgSrc: "/avatar_digit.jpg",
+        userId: "70ee665b-5cab-4ff0-ad6d-668ba1b11f91",
+        youtubeLink: "https://www.youtube.com/@DigitRacingDG",
+      },
+      {
+        name: "Kie",
+        imgSrc: "/avatar_kie.jpg",
+        userId: "f529f2c4-5cd2-40d7-b6bb-80cbf2aab784",
+        youtubeLink: "https://www.youtube.com/@thekie25",
+      },
+      {
+        name: "Supergt",
+        imgSrc: "/avatar_supergt.jpg",
+        userId: "d4fa38a2-9cc2-4a7d-ada9-43c23bf3692c",
+        youtubeLink: "https://www.youtube.com/@Super_GT",
+      },
+      {
+        name: "Omega",
+        imgSrc: "/avatar_omega.jpg",
+        userId: "103a27be-4a2f-4100-9bbb-054f9006037d",
+        youtubeLink: "https://www.youtube.com/@OmegaO",
+      },
+      {
+        name: "VVGNismo",
+        imgSrc: "/avatar_nismo.jpg",
+        userId: "41e05bf5-0b5b-4dc7-b170-07594ab69e7b",
+        youtubeLink: "https://www.youtube.com/@VVGNismo",
+      },
+    ];
+
+    // Function to shuffle the array and select 4 drivers
+    function getRandomDrivers(drivers) {
+      // Shuffle the array
+      const shuffled = drivers.sort(() => 0.5 - Math.random());
+      // Select the first 4 drivers
+      return shuffled.slice(0, 4);
+    }
+
+    function share() {
+      const element = document.getElementById("results");
+      html2canvas(element).then(canvas => {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "screenshot.png";
+        link.click();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const selectedDrivers = getRandomDrivers(drivers);
+      const driversDiv = document.querySelector(".popular-avatars");
+
+      // Clear existing content
+      driversDiv.innerHTML = "";
+
+      // Render selected drivers
+      selectedDrivers.forEach(driver => {
+        const driverDiv = document.createElement("div");
+        driverDiv.className = "d-flex flex-column align-items-center";
+        driverDiv.innerHTML = `
+          <img src="${driver.imgSrc}" alt="${driver.name}" data-userId="${driver.userId}" class="avatar-img image-rounded" />
+          <a href="${driver.youtubeLink}" target="_blank" class="icon-youtube">
+            <img src="/icon_youtube.svg" alt="YouTube Icon">
+          </a>
+        `;
+        driversDiv.appendChild(driverDiv);
+      });
+        
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('user_id');
+
+      if (userId) {
+        document.getElementById('user_id').value = userId;
+      }
+
+      document.querySelectorAll('.popular-avatars img').forEach(img => {
+        img.addEventListener('click', function () {
+            const userId = this.getAttribute('data-userId');
+            if (userId) {
+                getResults(userId);
+            }
+        });
+      });
+    });
+
+    document.getElementById('drForm').addEventListener('submit', function (event) {
+      event.preventDefault(); // Prevent default form submission
+      let userId = document.getElementById('user_id').value.trim();
+      getResults(userId);
+    });
+
+    const sumSequence = (firstTerm, count, difference) => (count / 2) * (2 * firstTerm + (count - 1) * difference);
+    const formatNumber = (num) => new Intl.NumberFormat().format(num);
+
+    const calculateRacePoints = (driverRating) => {
+      const NUM_DRIVERS = 16;
+      const RATING_GAP = 600;
+      const POINTS_DIVISOR = 206;
+
+      // Low estimate (user is the highest rated)
+      let highestRating = driverRating;
+      let sumRating = sumSequence(highestRating, NUM_DRIVERS, -RATING_GAP);
+      const avgLow = sumRating / NUM_DRIVERS;
+      const pointsLow = avgLow / POINTS_DIVISOR;
+
+      // High estimate (user is the lowest rated)
+      highestRating = driverRating + (15 * RATING_GAP);
+      sumRating = sumSequence(highestRating, NUM_DRIVERS, -RATING_GAP);
+      const avgHigh = sumRating / NUM_DRIVERS;
+      const pointsHigh = avgHigh / POINTS_DIVISOR;
+
+      return {
+          low: pointsLow.toFixed(0),
+          med: (driverRating / POINTS_DIVISOR).toFixed(0),
+          high: pointsHigh.toFixed(0),
+      };
+    };
+
+    async function savePSN(user) {;
+    // Send a POST request to your Express server
+    fetch("/saveUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(user),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to save user data");
+        }
+        return response.json();
+      })
+      .then((savedUser) => {
+        // console.log("User saved successfully:", savedUser);
+      })
+      .catch((error) => {
+        console.error("Error saving user:", error.message);
+      });
+    }
+
+    async function getResults(userId) {
+      
+      const resultsDiv = document.getElementById('results');
+
+      // Clear previous results
+      resultsDiv.innerHTML = `<div class="text-center">
+        <div role="status" class="spinner-border text-primary"></div>
+        </div>`;
+
+      if (!userId) {
+        resultsDiv.innerHTML = '<div class="alert alert-danger">User ID or PSN is required.</div>';
+        return;
+      }
+
+      try {
+        let psnRecord = false;
+        const uuidRegex = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+        if (!uuidRegex.test(userId)) {
+          // Check if input is a GT7 profile URL and extract UUID
+          const urlMatch = userId.match(/\/gt7\/user\/mymenu\/([a-f0-9-]{36})\/profile/i);
+          if (urlMatch) {
+            userId = urlMatch[1]; // Extracted UUID
+          } else {
+            // Attempt to fetch UUID by PSN
+            const psnResponse = await fetch(`/getUserByPsn?psn=${encodeURIComponent(userId)}`);
+            const psnData = await psnResponse.json();
+
+            if (!psnResponse.ok || !psnData.user_id) {
+              resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                  <strong>Error:</strong> PSN not found, please try your Gran Turismo profile link.
+                </div>
+              `;
+              return;
+            }
+            psnRecord = true;
+            userId = psnData.user_id; // Update userId with the fetched value
+          }
+        }
+
+        // Fetch results from the /json endpoint
+        const response = await fetch(`/json?user_id=${encodeURIComponent(userId)}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          const racePoints = calculateRacePoints(data.dr);
+          const progressBarWidth = (data.drPointRatio * 100).toFixed(3) + '%'; // Convert to percentage
+          resultsDiv.innerHTML = `
+          <div class="card card-body results-card">
+            <div class="results-driver-name text-center mb-3">
+              <div>${data.psn}</div>
+              <div style="font-size: 12px;"><span>(${data.driver_name})</span></div>
+            </div>
+            <div class="results-stats">
+              <div class="result-stat flex-grow-1 align-content-center">
+                <div class="result-rating d-flex justify-content-between pb-3">
+                  <div class="result-dr">
+                    ${formatNumber(data.dr)}
+                  </div>
+                  <div class="result-rank">
+                    ${data.rank}
+                  </div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: ${progressBarWidth};"></div>
+                </div>
+              </div>
+              <div class="result-stat text-center">
+                <div><strong>GTWS Pts.</strong></div>
+                <div class="result-rating px-4">${racePoints.med}</div>
+                <div class="d-flex justify-content-center">
+                  <small class="mx-2">▼ ${racePoints.low}</small>
+                  <small class="mx-2">▲ ${racePoints.high}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('results-share').style.display = 'block';
+
+          // Save PSN to firebase
+          if (!psnRecord) {
+            savePSN({
+              nick_name: data.driver_name,
+              np_online_id: data.psn,
+              user_id: userId,
+            });
+          }
+        } else {
+          resultsDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${data.error || 'An unknown error occurred.'}
+                        </div>
+                    `;
+          document.getElementById('results-share').style.display = 'none';
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${error.message || 'Failed to fetch results.'}
+                    </div>
+                `;
+        document.getElementById('results-share').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
