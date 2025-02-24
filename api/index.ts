@@ -2,8 +2,9 @@ require('dotenv').config(); // Load environment variables
 
 const express = require("express");
 const cors = require("cors");
-const { getToken, getStats, getUser } = require("./provider");
-const { addUser, getUserByPsn, saveDailyStats, updateUserStatsHistory } = require("./psnProvider");
+const { getToken, getStats, getUser, getRoundLapTimes } = require("./provider");
+const { loginUser, registerUser } = require("./authProvider");
+const { addUser, getUserByPsn, retrieveDailyStats, saveDailyStats, updateUserStatsHistory } = require("./psnProvider");
 const calculateRating = require("../helpers/calculateRating");
 const path = require('path');
 const fs = require('fs');
@@ -29,6 +30,40 @@ if (!USER_SESSION_ID) {
 }
 
 const USER_COOKIE = `JSESSIONID=${USER_SESSION_ID}`;
+
+// Register User
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: "Missing parameters" });
+  }
+
+  try {
+    const userRecord = await registerUser(email, password);
+    res.status(201).json({ uid: userRecord.uid, email: userRecord.email });
+  } catch (error) {
+    console.error('Error creating new user:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Login User
+app.post('/login', async (req, res) => {
+  const { token } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ error: "Missing parameters" });
+  }
+
+  try {
+    const user = await loginUser(token);
+    res.status(200).json({ uid: user.uid, email: user.email });
+  } catch (error) {
+    console.error('Error creating new user:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
 
 // Endpoint to handle GET requests
 app.get("/json", async (req, res) => {
@@ -91,6 +126,25 @@ app.get("/getUserByUrl", async (req, res) => {
       driver_name: nickname,
       user_id: user_id,
     });
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
+  }
+});
+
+app.get("/getRoundLapTimes", async (req, res) => {
+  const eventId = req.query.event_id;
+
+  // Validate even_id parameter
+  if (!eventId) {
+    return res.status(400).json({ error: "Missing event_id parameter" });
+  }
+
+  try {
+    const accessToken = await getToken(USER_COOKIE);
+    const eventLapTimes = await getRoundLapTimes(eventId, accessToken);
+
+    return res.json(eventLapTimes);
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({ error: "An error occurred", details: error.message });
@@ -160,6 +214,27 @@ app.get("/getUserByPsn", async (req, res) => {
     }
 
     return res.json({ user_id: user.user_id });
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: "An error occurred", details: error.message });
+  }
+});
+
+app.get("/getUserStatsHistory", async (req, res) => {
+  const userId = req.query.user_id;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Missing id parameter" });
+  }
+
+  try {
+    const stats = await retrieveDailyStats(userId);
+
+    if (!stats) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({ ...stats });
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({ error: "An error occurred", details: error.message });

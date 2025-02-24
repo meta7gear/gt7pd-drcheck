@@ -108,5 +108,26 @@ async function updateUserStatsHistory(user) {
   }
 }
 
+async function retrieveDailyStats(userId) {
+  try {
+      const db = admin.firestore();
+      const statsRef = db.collection('stats');
+      
+      // Query Firestore for up to 100 documents where userID matches, ordered by timestamp descending
+      const querySnapshot = await statsRef
+          .where('userID', '==', userId)
+          .orderBy('timestamp', 'asc')
+          .limit(7)
+          .get();
+      
+      // Map the documents into an array
+      const stats = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      return stats;
+  } catch (error) {
+      console.error('Error retrieving daily stats:', error);
+      throw new Error('Failed to retrieve stats');
+  }
+}
 
-module.exports = { addUser, getUserByPsn, saveDailyStats, updateUserStatsHistory };
+module.exports = { addUser, getUserByPsn, retrieveDailyStats, saveDailyStats, updateUserStatsHistory };

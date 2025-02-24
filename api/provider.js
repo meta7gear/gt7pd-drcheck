@@ -76,7 +76,7 @@ const getStats = async (userId, accessToken) => {
 };
 
 /**
- * Fetches the user infor using the provided user url and access token.
+ * Fetches the user info using the provided user url and access token.
  * @param {string} userUrl - The user Url.
  * @param {string} accessToken - The access token.
  * @returns {Promise<object>} - The user object.
@@ -113,7 +113,42 @@ const getUser = async (userUrl, accessToken) => {
   }
 };
 
+/**
+ * Fetches the user info using the provided user url and access token.
+ * @param {string} userUrl - The user Url.
+ * @param {string} accessToken - The access token.
+ * @returns {Promise<object>} - The user object.
+ */
+const getRoundLapTimes = async (eventId, accessToken) => {
+  try {
+    const response = await axios.post(
+      "https://web-api.gt7.game.gran-turismo.com/ranking/get_list_by_page",
+      {
+        board_id: `p_rt_10${eventId}_001`,
+        page: 0,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0",
+        },
+      }
+    );
+
+    const data = response.data.result;
+
+    return {
+      list: data.list,
+      total: data.total,
+    };
+  } catch (error) {
+    throw new Error(`Error in getRoundLapTimes: ${error.message}`);
+  }
+};
 
 
 
-module.exports = { getToken, getStats, getUser };
+
+module.exports = { getToken, getStats, getUser, getRoundLapTimes };
