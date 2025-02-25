@@ -116,7 +116,7 @@ async function retrieveDailyStats(userId) {
       // Query Firestore for up to 100 documents where userID matches, ordered by timestamp descending
       const querySnapshot = await statsRef
           .where('userID', '==', userId)
-          .orderBy('timestamp', 'asc')
+          .orderBy('timestamp', 'desc')
           .limit(7)
           .get();
       
